@@ -1,0 +1,5 @@
+To start dynet:
+source activate dynet-py3
+
+To stop dynet:
+source deactivate dynet-py3
