@@ -1,6 +1,7 @@
 import numpy as np
 import sys
 import utils
+import pickle
 import dynet_config
 import dynet as dy
 from os import path
@@ -182,14 +183,11 @@ def train():
 		epochLosses.append(np.sum(epochLoss))
 		print("testing after epoch {}".format(i+1))
 		epochPredictions = test()
-		epochOverallAccuracy = evaluate(epochPredictions, testingLabels)
+		epochOverallAccuracy = realTest(finalLayer(test()), testingLabels)
 		overallAccuracies.append(epochOverallAccuracy)
 		
-		print("Loss", np.sum(epochLoss))	
-		print("Accuracy", realTest(finalLayer(test()), testingLabels))
-
 	print(overallAccuracies)
-	sys.stdout.flush()
+	print(epochLosses)
 	return epochLosses, overallAccuracies
 
 def test():
@@ -265,6 +263,19 @@ if __name__ == "__main__":
 	# Add random embeddings
 	embeddingParameters = rnnModel.add_lookup_parameters((len(wordToIndex) + 1, EMBEDDING_DIM))
 
+	'''
+	# Add pretrained word embeddings
+	embeddingLookup = pickle.load(open(sys.argv[3], "rb"))
+	embeddingMatrix = [[] for word in vocab]
+	for word in wordToIndex.keys():
+		if word in embeddingLookup.keys():
+			embeddingMatrix[wordToIndex[word]] = embeddingLookup[word]
+		else:
+			embeddingMatrix[wordToIndex[word]] = [0 for i in range(EMBEDDING_DIM)]
+	embeddingMatrix = np.array(embeddingMatrix)
+	embeddingParameters = rnnModel.lookup_parameters_from_numpy(embeddingMatrix)
+	'''
+
 	# Add RNN
 	rnnUnit = dy.GRUBuilder(NUM_LAYERS, EMBEDDING_DIM, HIDDEN_SIZE, rnnModel)
 
@@ -285,7 +296,7 @@ if __name__ == "__main__":
 	# Defined train here
 
 	# Pick number of epochs
-	NUM_EPOCHS = 100
+	NUM_EPOCHS = 30
 
 	# Defined checkScore and getAccuracy here
 

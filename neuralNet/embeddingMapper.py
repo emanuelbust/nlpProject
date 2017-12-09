@@ -1,3 +1,4 @@
+import pickle
 import sys
 
 def read(path):
@@ -14,5 +15,4 @@ def read(path):
 if __name__ == "__main__":
 	inFile = sys.argv[1]
 	lookUp = read(inFile)
-
-	print(lookUp["bitch"])
+	pickle.dump(lookUp, open("embeddings.bin", "wb"))
