@@ -177,14 +177,6 @@ def train():
 				msgLoss.backward()
 				TRAINER.update()
 				epochLoss.append(msgLoss.npvalue())
-
-				
-				# Check the prediction of sample sentence
-			if j % 250 == 0:
-				print("epoch {}, batch {}".format(i+1, j+1))
-				samp = forwardPass(wordsToIndices(sample, wordToIndex))
-				predictions = [indexToLabel[p] for p in predict(samp)]				
-				print(list(zip(sample, predictions)))
 					
 		# Record epoch loss
 		epochLosses.append(np.sum(epochLoss))
@@ -197,7 +189,7 @@ def train():
 		print("Accuracy", realTest(finalLayer(test()), testingLabels))
 
 	print(overallAccuracies)
-			
+	sys.stdout.flush()
 	return epochLosses, overallAccuracies
 
 def test():
@@ -282,25 +274,6 @@ if __name__ == "__main__":
 	# Add projection layer bias
 	projectionBias = rnnModel.add_parameters((len(list(labelToIndex.keys()))))
 	
-	'''
-	# Sucessfully ran this through the RNN
-	sample = "Down as shit motherfuckers".split()
-	sample = wordsToIndices(sample, wordToIndex)
-	sample = forwardPass(sample)
-	print(sample[0].npvalue())
-	'''
-	sample = "Down as shit motherfuckers Scott".split()
-
-	'''
-	# Sucessfully predicct labels
-	sent = "Down as shit motherfuckers".split()
-	sample = wordsToIndices(sent, wordToIndex)
-	sample = forwardPass(sample)
-	predict = predict(sample)
-	predict = [indexToLabel[label] for label in predict]	
-	print(list(zip(sent, predict)))
-	'''
-
 	# Initialize a trainer
 	TRAINER = dy.SimpleSGDTrainer(m = rnnModel, learning_rate = .01)
 	
