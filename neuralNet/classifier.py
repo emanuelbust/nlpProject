@@ -7,7 +7,6 @@ import dynet as dy
 from os import path
 from operator import itemgetter
 
-# I don't know what this is
 dynet_config.set(
     mem=4096,
     autobatch=True,      # utilize autobatching
@@ -61,6 +60,7 @@ def uniqueList(givenList):
 
 	return uniqueElements
 
+# Generate the vocabulary
 def getVocab(messages):
 	allWords = []
 	for message in messages:
@@ -69,6 +69,7 @@ def getVocab(messages):
 	
 	return uniqueList(allWords)
 
+# Map words to embeding indices
 def wordsToIndices(wordSeq, wordToIndex):
 	indexSeq = []
 	
@@ -81,11 +82,11 @@ def wordsToIndices(wordSeq, wordToIndex):
 	
 	return indexSeq
 
+# Run a message through the network
 def forwardPass(message):
 	# Map the words in a message to its word embeddings
 	inputSeq = [embeddingParameters[word] for word in message]
 	
-	# Convert parameters to expressions???????????
 	w = dy.parameter(projectionWeight)
 	b = dy.parameter(projectionBias)
 
@@ -100,6 +101,7 @@ def forwardPass(message):
 
 	return rnnOutputs
 
+# Convert network output to labels
 def predict(outputList):
 	# Take the softmax of each output
 	predProbs = [dy.softmax(output) for output in outputList]
@@ -112,12 +114,15 @@ def predict(outputList):
 
 	return predProbIndex
 
+# Check if a label and a prediction match
 def checkScore(prediction, true):
 	return 1 if prediction == true  else 0
 
+# Evaluate a set of scores
 def getAccuracy(scores):
 	return float(sum(scores) / len(scores))
 
+# Evaluate a classification a subset of the data
 def evaluate(nestedPreds, nestedTrue):
 	flatScores = []
 
@@ -138,6 +143,7 @@ def evaluate(nestedPreds, nestedTrue):
 
 	return accuracy
 
+# Train the network
 def train():
 	epochLosses = []
 	overallAccuracies = []
@@ -181,7 +187,6 @@ def train():
 					
 		# Record epoch loss
 		epochLosses.append(np.sum(epochLoss))
-		print("testing after epoch {}".format(i+1))
 		epochPredictions = test()
 		epochOverallAccuracy = realTest(finalLayer(test()), testingLabels)
 		overallAccuracies.append(epochOverallAccuracy)
@@ -190,6 +195,7 @@ def train():
 	print(epochLosses)
 	return epochLosses, overallAccuracies
 
+# Test the network
 def test():
 	allPredictions = []
 	
@@ -213,14 +219,20 @@ def test():
 	
 	return allPredictions
 
+# Convert word labels to message labels
 def finalLayer(predictions):
 	msgPred = []
+		
+	# COunt labels
 	for pred in predictions:
 		counts = [(x, pred.count(x)) for x in pred]
 		counts = sorted(counts, key = itemgetter(1), reverse = True)
+		
+		# Pick the most common label
 		msgPred.append(counts[0][0])
 	return msgPred
 
+# Test on the message level
 def realTest(predictions, labels):
 	count = 0.0
 	for i in range(len(predictions)):
@@ -292,8 +304,6 @@ if __name__ == "__main__":
 	BATCH_SIZE = 256
 	NUM_BATCHES_TRAINING = int(np.ceil(len(trainingMessages) / BATCH_SIZE)) 
 	NUM_BATCHES_TESTING = int(np.ceil(len(testingMessages) / BATCH_SIZE)) 
-
-	# Defined train here
 
 	# Pick number of epochs
 	NUM_EPOCHS = 15

@@ -2,9 +2,12 @@ import sys
 import random
 import numpy as np
 
+# Read each line
 def parsePoints(path):
 	return [line for line in open(path, "r")]
 
+# With proabability, parition a message for either
+# training, development, or testing
 def splitInThirds(points):
 	firstThird = []
 	secondThird = []
