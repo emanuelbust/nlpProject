@@ -260,6 +260,7 @@ if __name__ == "__main__":
 	vocab = getVocab(trainingMessages)
 	wordToIndex = {vocab[i]:i for i in range(len(vocab))}
 
+	'''
 	# Add random embeddings
 	embeddingParameters = rnnModel.add_lookup_parameters((len(wordToIndex) + 1, EMBEDDING_DIM))
 
@@ -274,7 +275,6 @@ if __name__ == "__main__":
 			embeddingMatrix[wordToIndex[word]] = [0 for i in range(EMBEDDING_DIM)]
 	embeddingMatrix = np.array(embeddingMatrix)
 	embeddingParameters = rnnModel.lookup_parameters_from_numpy(embeddingMatrix)
-	'''
 
 	# Add RNN
 	rnnUnit = dy.GRUBuilder(NUM_LAYERS, EMBEDDING_DIM, HIDDEN_SIZE, rnnModel)
@@ -296,7 +296,7 @@ if __name__ == "__main__":
 	# Defined train here
 
 	# Pick number of epochs
-	NUM_EPOCHS = 30
+	NUM_EPOCHS = 15
 
 	# Defined checkScore and getAccuracy here
 
